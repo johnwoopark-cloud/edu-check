@@ -1,6 +1,9 @@
-console.log("불러온 데이터:", initialData); // 데이터 자체가 잘 왔는지 확인
-console.log("현재 로컬스토리지:", localStorage.getItem('attendanceData')); // 저장된 게 있는지 확인
-
+// script.js 맨 윗줄에 넣으세요
+if (typeof initialData === 'undefined') {
+    alert("위험! data.js를 찾지 못했습니다. 파일 이름이나 연결 순서를 확인하세요.");
+} else {
+    alert("성공! 데이터 " + initialData.length + "건을 읽어왔습니다.");
+}
 
 // 1. 데이터 불러오기
 let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
