@@ -3,35 +3,29 @@ let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || initi
 
 // 2. 표 그리기 함수
 function renderTable() {
-    const listBody = document.getElementById('traineeList');
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    listBody.innerHTML = ''; // 기존 내용 지우기
+    const listBody = document.getElementById('trainee-list');
+    listBody.innerHTML = ''; 
 
-    attendanceData.forEach(item => {
-        // 검색 필터링
-        if (item.이름.includes(searchTerm) || item.사번.includes(searchTerm)) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.부서}<br><b>${item.이름}</b>(${item.사번})</td>
-                <td>${item.오전개시 ? item.오전개시 : `<button class="btn btn-start" onclick="recordTime('${item.사번}', '오전개시')">출근</button>`}</td>
-                <td>${item.오전종료 ? item.오전종료 : `<button class="btn btn-end" onclick="recordTime('${item.사번}', '오전종료')">퇴근</button>`}</td>
-                <td>${item.오후개시 ? item.오후개시 : `<button class="btn btn-start" onclick="recordTime('${item.사번}', '오후개시')">출근</button>`}</td>
-                <td>${item.오후종료 ? item.오후종료 : `<button class="btn btn-end" onclick="recordTime('${item.사번}', '오후종료')">퇴근</button>`}</td>
-                <td>
-                    <select onchange="updateNote('${item.사번}', this.value)">
-                        <option value="">간식 선택</option>
-                        <option value="아아" ${item.간식 === '아아' ? 'selected' : ''}>아아</option>
-                        <option value="라떼" ${item.간식 === '라떼' ? 'selected' : ''}>라떼</option>
-                    </select>
-                    <input type="text" placeholder="사유 입력" value="${item.비고 || ''}" onchange="updateMemo('${item.사번}', this.value)">
-                </td>
-            `;
-            listBody.appendChild(tr);
-        }
+    const currentData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
+
+    currentData.forEach(item => {
+        const row = `
+            <tr>
+                <td style="font-size: 0.9em;">${item.부서}<br><b>${item.이름}</b>(${item.사번})</td>
+                <td style="font-size: 0.8em;">${item.과정명}</td>
+                <td style="font-size: 0.8em;">${item.날짜}</td>
+                <td>${item.교육시간}h</td>
+                <td><button onclick="recordTime('${item.사번}', '오전개시')">${item.오전개시 || '출석'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오전종료')">${item.오전종료 || '종료'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오후개시')">${item.오후개시 || '출석'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오후종료')">${item.오후종료 || '종료'}</button></td>
+                <td><input type="text" class="input-cell" value="${item.간식 || ''}" onchange="updateInfo('${item.사번}', '간식', this.value)"></td>
+                <td><input type="text" class="input-cell" value="${item.비고 || ''}" onchange="updateInfo('${item.사번}', '비고', this.value)"></td>
+            </tr>
+        `;
+        listBody.innerHTML += row;
     });
-    updateStats();
 }
-
 // 3. 시간 기록 함수
 function recordTime(id, type) {
     const now = new Date();
