@@ -101,3 +101,4 @@ function renderTable() {
         listBody.innerHTML += row;
     });
 }
+window.onload = renderTable;
