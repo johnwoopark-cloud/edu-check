@@ -50,8 +50,16 @@ function saveRemarks(사번) {
 // ─── 모달 관련 ───────────────────────────────────────────────
 let _editTarget사번 = null;
 
-// 출결 수정 버튼 클릭 → 모달 열기
+// [수정] 출결 수정 버튼 클릭 → 비밀번호 확인 후 모달 열기
 function unlockAndEdit(사번) {
+    // 비밀번호 체크
+    const password = prompt("수정 권한 확인을 위해 비밀번호를 입력하세요.");
+    
+    if (password !== "6939") {
+        alert("비밀번호가 틀렸습니다. 관리자에게 문의하세요.");
+        return;
+    }
+
     const item = attendanceData.find(d => d.사번 === 사번);
     if (!item) return;
 
@@ -94,21 +102,43 @@ function closeEditModal() {
 }
 // ─────────────────────────────────────────────────────────────
 
-// 엑셀 다운로드
+// [수정/추가] 시간 차이 계산 함수 (HH:mm 형식 계산)
+function getDiffMinutes(start, end) {
+    if (!start || !end) return 0;
+    const [sH, sM] = start.split(':').map(Number);
+    const [eH, eM] = end.split(':').map(Number);
+    
+    const startTotal = sH * 60 + sM;
+    const endTotal = eH * 60 + eM;
+    
+    return endTotal > startTotal ? endTotal - startTotal : 0;
+}
+
+// [수정] 엑셀 다운로드 (수강 시간 합계 계산 포함)
 function exportToExcel() {
-    const exportData = attendanceData.map(item => ({
-        '부서': item.부서,
-        '사번': item.사번,
-        '이름': item.이름,
-        '과정명': item.과정명,
-        '날짜': item.날짜,
-        '교육시간': item.교육시간,
-        '오전개시': item.오전개시 || '',
-        '오전종료': item.오전종료 || '',
-        '오후개시': item.오후개시 || '',
-        '오후종료': item.오후종료 || '',
-        '비고/사유': item['비고/사유'] || ''
-    }));
+    const exportData = attendanceData.map(item => {
+        // 오전/오후 수강 시간(분 단위) 계산
+        const amMin = getDiffMinutes(item.오전개시, item.오전종료);
+        const pmMin = getDiffMinutes(item.오후개시, item.오후종료);
+        
+        // 합산하여 시간 단위(h)로 변환 (예: 1시간 30분 -> 1.5)
+        const totalHours = ((amMin + pmMin) / 60).toFixed(1);
+
+        return {
+            '부서': item.부서,
+            '사번': item.사번,
+            '이름': item.이름,
+            '과정명': item.과정명,
+            '날짜': item.날짜,
+            '배정 교육시간': item.교육시간, // 기존 교육시간 컬럼명 변경 (구분용)
+            '오전개시': item.오전개시 || '',
+            '오전종료': item.오전종료 || '',
+            '오후개시': item.오후개시 || '',
+            '오후종료': item.오후종료 || '',
+            '비고/사유': item['비고/사유'] || '',
+            '실제 수강시간(합계)': totalHours + 'h' // 계산된 시간 추가
+        };
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
