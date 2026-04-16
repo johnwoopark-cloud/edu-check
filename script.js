@@ -47,30 +47,52 @@ function saveRemarks(사번) {
     alert('비고가 저장되었습니다.');
 }
 
-// 관리자 출결 수정 - 해당 행의 모든 버튼 잠금 해제
+// ─── 모달 관련 ───────────────────────────────────────────────
+let _editTarget사번 = null;
+
+// 출결 수정 버튼 클릭 → 모달 열기
 function unlockAndEdit(사번) {
     const item = attendanceData.find(d => d.사번 === 사번);
     if (!item) return;
 
-    const fields = ['오전개시', '오전종료', '오후개시', '오후종료'];
-    const options = fields.map(f => `${f}: ${item[f] || '미기록'}`).join('\n');
-    const target = prompt(
-        `[${item.이름}] 수정할 항목을 입력하세요:\n오전개시 / 오전종료 / 오후개시 / 오후종료\n\n현재 기록:\n${options}`
-    );
+    _editTarget사번 = 사번;
 
-    if (!target || !fields.includes(target.trim())) {
-        alert('올바른 항목명을 입력하세요. (예: 오전개시)');
-        return;
-    }
+    document.getElementById('modal-name').textContent = `[${item.이름}] 출결 수정`;
+    document.getElementById('modal-field').value = '오전개시';
 
-    const newTime = prompt(`[${target.trim()}] 새로운 시간을 입력하세요 (예: 09:00)\n비우려면 그냥 확인을 누르세요.`);
-    if (newTime === null) return; // 취소
+    updateModalTimeInput();
+    document.getElementById('edit-modal').style.display = 'flex';
+}
 
-    item[target.trim()] = newTime.trim();
+// 드롭다운 변경 시 → 기존 기록값을 time input에 반영
+function updateModalTimeInput() {
+    const item = attendanceData.find(d => d.사번 === _editTarget사번);
+    if (!item) return;
+
+    const field = document.getElementById('modal-field').value;
+    document.getElementById('modal-time').value = item[field] || '';
+}
+
+// 모달 저장
+function saveEditModal() {
+    const item = attendanceData.find(d => d.사번 === _editTarget사번);
+    if (!item) return;
+
+    const field = document.getElementById('modal-field').value;
+    const newTime = document.getElementById('modal-time').value.trim();
+
+    item[field] = newTime;
     saveData();
     renderTable();
-    alert(`[${item.이름}] ${target.trim()} → '${newTime.trim() || '삭제됨'}' 으로 수정되었습니다.`);
+    closeEditModal();
 }
+
+// 모달 닫기
+function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    _editTarget사번 = null;
+}
+// ─────────────────────────────────────────────────────────────
 
 // 엑셀 다운로드
 function exportToExcel() {
