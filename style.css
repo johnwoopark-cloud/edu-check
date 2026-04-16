@@ -1,51 +1,195 @@
-/* 1. 기본 설정 */
-body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
-h1 { color: #333; text-align: center; }
-
-/* 2. 테이블 레이아웃 */
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background: #fff; 
-    table-layout: fixed; /* 너비 고정 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+/* 기본 폰트 및 배경 설정 */
+:root {
+    --primary-color: #2563eb;    /* 메인 블루 */
+    --secondary-color: #64748b;  /* 서브 그레이 */
+    --success-color: #22c55e;    /* 시작/확인 버튼 */
+    --danger-color: #ef4444;     /* 종료 버튼 */
+    --bg-color: #f8fafc;         /* 배경색 */
+    --card-bg: #ffffff;
 }
 
-th, td { 
-    border: 1px solid #dee2e6; 
-    padding: 10px 4px; 
-    text-align: center; 
-    font-size: 13px; 
-    overflow: hidden; 
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: #1e293b;
+    margin: 0;
+    padding: 20px;
 }
 
-th { background-color: #007bff; color: white; font-weight: bold; }
-
-/* 3. 칼럼별 너비 (%) */
-th:nth-child(1) { width: 11%; } /* 이름 */
-th:nth-child(2) { width: 13%; } /* 과정명 */
-th:nth-child(3) { width: 9%; }  /* 날짜 */
-th:nth-child(4) { width: 5%; }  /* 시간 */
-th:nth-child(5), th:nth-child(6), th:nth-child(7), th:nth-child(8) { width: 8%; } /* 확인버튼들 */
-th:nth-child(9) { width: 18%; } /* 비고 */
-th:nth-child(10) { width: 12%; } /* 수정 */
-
-/* 4. 버튼 및 입력창 스타일 */
-button { 
-    width: 100%; padding: 8px 0; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-/* 출결 완료(비활성화) 상태 */
-button.done { background-color: #e9ecef !important; color: #adb5bd !important; cursor: not-allowed; }
+/* 상단 헤더 영역 */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 15px;
+}
 
-/* 비고 입력 영역 */
-.remarks-container { display: flex; gap: 4px; }
-.remarks-container input { width: 70%; padding: 5px; border: 1px solid #ced4da; border-radius: 3px; font-size: 11px; }
-.remarks-container button { width: 28%; font-size: 11px; background: #6c757d; color: white; border: none; }
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
 
-/* 출결 수정 버튼 (노란색) */
-.btn-edit { background-color: #ffc107; border: 1px solid #e0a800; font-weight: bold; }
-.btn-edit:hover { background-color: #e0a800; }
+.attendance-summary {
+    font-weight: 600;
+    color: var(--primary-color);
+    background: #eff6ff;
+    padding: 8px 16px;
+    border-radius: 20px;
+}
 
-/* 엑셀 다운로드 버튼 (상단 위치용) */
-.btn-export { width: auto; padding: 10px 20px; background: #28a745; color: white; font-weight: bold; margin-bottom: 15px; float: right; }
+/* 검색 및 내보내기 영역 */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    flex-grow: 1;
+    outline-color: var(--primary-color);
+}
+
+/* 테이블 스타일 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+    vertical-align: middle;
+}
+
+tr:hover {
+    background-color: #f8fafc;
+}
+
+/* 버튼 스타일 */
+.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-width: 70px;
+}
+
+.btn-start {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-end {
+    background-color: #f59e0b; /* 오렌지색 */
+    color: white;
+}
+
+.btn-edit {
+    background-color: #94a3b8;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+
+.btn:hover:not(:disabled) {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+}
+
+/* 완료(Disabled) 상태 스타일 */
+button.done {
+    background-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    cursor: default;
+    box-shadow: none;
+}
+
+/* 비고란 입력 스타일 */
+.remarks-container {
+    display: flex;
+    gap: 5px;
+}
+
+.remarks-container input {
+    width: 120px;
+    font-size: 0.85rem;
+    padding: 5px;
+}
+
+.remarks-container button {
+    padding: 5px 8px;
+    background: #64748b;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* 모달창 스타일 */
+#edit-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.modal-content select, .modal-content input {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
