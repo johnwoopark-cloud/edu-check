@@ -1,21 +1,14 @@
-// script.js 맨 윗줄에 넣으세요
-if (typeof initialData === 'undefined') {
-    alert("위험! data.js를 찾지 못했습니다. 파일 이름이나 연결 순서를 확인하세요.");
-} else {
-    alert("성공! 데이터 " + initialData.length + "건을 읽어왔습니다.");
-}
+// 1. 데이터 초기화 (로컬스토리지 확인 후 없으면 data.js의 initialData 사용)
+let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || (typeof initialData !== 'undefined' ? initialData : []);
 
-// 1. 데이터 불러오기
-let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
-
-// 시간을 분 단위로 변환하는 헬퍼 함수
+// 시간을 분 단위로 변환하는 함수
 function timeToMinutes(timeStr) {
     if (!timeStr) return null;
     const [h, m] = timeStr.split(':').map(Number);
     return h * 60 + m;
 }
 
-// 2. 시간 기록 함수 (제한 사항 적용)
+// 2. 시간 기록 함수 (1시간 제한 및 중복 클릭 방지)
 function recordTime(id, type) {
     const now = new Date();
     const currentTimeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -23,88 +16,102 @@ function recordTime(id, type) {
 
     let targetItem = attendanceData.find(item => item.사번 === id);
 
-    // [제한 1] 이미 기록된 경우 클릭 불가
     if (targetItem[type]) {
-        alert("이미 기록되었습니다. 수정을 원하시면 '수정' 버튼을 이용하세요.");
+        alert("이미 기록되었습니다.");
         return;
     }
 
-    // [제한 2] 종료 버튼 클릭 시 1시간 경과 여부 확인
+    // 종료 버튼 클릭 시 1시간 경과 체크
     if (type === '오전종료' || type === '오후종료') {
         const startType = type === '오전종료' ? '오전개시' : '오후개시';
         const startTimeStr = targetItem[startType];
-        
-        if (!startTimeStr) {
-            alert("개시 시간을 먼저 기록해야 합니다.");
-            return;
-        }
+        if (!startTimeStr) { alert("개시 시간을 먼저 기록해야 합니다."); return; }
 
-        const startMinutes = timeToMinutes(startTimeStr);
-        if (currentMinutes - startMinutes < 60) {
+        if (currentMinutes - timeToMinutes(startTimeStr) < 60) {
             alert("개시 후 최소 1시간이 지나야 종료 확인이 가능합니다.");
             return;
         }
     }
 
-    // 데이터 저장
     targetItem[type] = currentTimeStr;
-    saveAndReload();
+    saveData();
 }
 
-// 3. 수정 버튼 로직 (비밀번호 확인)
+// 3. 비고 내용 저장 함수
+function saveRemarks(id) {
+    const inputVal = document.getElementById(`remarks-${id}`).value;
+    attendanceData = attendanceData.map(item => {
+        if (item.사번 === id) item.비고 = inputVal;
+        return item;
+    });
+    saveData();
+    alert("비고가 저장되었습니다.");
+}
+
+// 4. 관리자 수정 함수 (비밀번호 6939)
 function unlockAndEdit(id) {
-    const password = prompt("관리자 비밀번호를 입력하세요.");
-    
-    if (password === "6939") {
+    if (prompt("관리자 비밀번호를 입력하세요.") === "6939") {
         attendanceData = attendanceData.map(item => {
             if (item.사번 === id) {
-                // 해당 행의 모든 기록을 초기화하거나 선택적으로 지울 수 있습니다.
-                // 여기서는 안전하게 해당 행의 시간 기록만 초기화합니다.
-                item.오전개시 = "";
-                item.오전종료 = "";
-                item.오후개시 = "";
-                item.오후종료 = "";
-                alert("기록이 초기화되었습니다. 다시 확인해 주세요.");
+                item.오전개시 = ""; item.오전종료 = "";
+                item.오후개시 = ""; item.오후종료 = "";
             }
             return item;
         });
-        saveAndReload();
+        saveData();
+        alert("기록이 초기화되었습니다.");
     } else {
-        alert("비밀번호가 일치하지 않습니다.");
+        alert("비밀번호가 틀렸습니다.");
     }
 }
 
-// 공통 저장 및 새로고침 함수
-function saveAndReload() {
-    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-    renderTable(); // 화면만 다시 그리기 (새로고침보다 부드러움)
+// 5. 엑셀 다운로드 함수 (실제 이수시간 자동 계산)
+function exportToExcel() {
+    const processed = attendanceData.map(item => {
+        let tMin = 0;
+        const amS = timeToMinutes(item.오전개시), amE = timeToMinutes(item.오전종료);
+        const pmS = timeToMinutes(item.오후개시), pmE = timeToMinutes(item.오후종료);
+        if(amS && amE) tMin += (amE - amS);
+        if(pmS && pmE) tMin += (pmE - pmS);
+        const actual = (tMin / 60).toFixed(1);
+        return { ...item, "실제이수시간": actual, "상태": (actual >= item.교육시간) ? "이수" : "조퇴/미이수" };
+    });
+    const ws = XLSX.utils.json_to_sheet(processed);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "출석부");
+    XLSX.writeFile(wb, "교육결과_리포트.xlsx");
 }
 
-// 4. 테이블 렌더링 (수정 버튼 추가)
+// 데이터 저장 및 화면 갱신
+function saveData() {
+    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+    renderTable();
+}
+
+// 6. 테이블 화면 그리기
 function renderTable() {
     const listBody = document.getElementById('trainee-list');
-    listBody.innerHTML = ''; 
-
+    if (!listBody) return;
+    listBody.innerHTML = '';
     attendanceData.forEach(item => {
         const row = `
             <tr>
-                <td>${item.부서}<br><b>${item.이름}</b>(${item.사번})</td>
+                <td>${item.부서}<br><b>${item.이름}</b></td>
                 <td>${item.과정명}</td>
                 <td>${item.날짜}</td>
                 <td>${item.교육시간}h</td>
-                <td><button ${item.오전개시 ? 'disabled class="done"' : ''} onclick="recordTime('${item.사번}', '오전개시')">${item.오전개시 || '확인'}</button></td>
-                <td><button ${item.오전종료 ? 'disabled class="done"' : ''} onclick="recordTime('${item.사번}', '오전종료')">${item.오전종료 || '확인'}</button></td>
-                <td><button ${item.오후개시 ? 'disabled class="done"' : ''} onclick="recordTime('${item.사번}', '오후개시')">${item.오후개시 || '확인'}</button></td>
-                <td><button ${item.오후종료 ? 'disabled class="done"' : ''} onclick="recordTime('${item.사번}', '오후종료')">${item.오후종료 || '확인'}</button></td>
-                <td>...간식 선택 영역...</td>
+                <td><button ${item.오전개시?'disabled class="done"':''} onclick="recordTime('${item.사번}','오전개시')">${item.오전개시||'확인'}</button></td>
+                <td><button ${item.오전종료?'disabled class="done"':''} onclick="recordTime('${item.사번}','오전종료')">${item.오전종료||'확인'}</button></td>
+                <td><button ${item.오후개시?'disabled class="done"':''} onclick="recordTime('${item.사번}','오후개시')">${item.오후개시||'확인'}</button></td>
+                <td><button ${item.오후종료?'disabled class="done"':''} onclick="recordTime('${item.사번}','오후종료')">${item.오후종료||'확인'}</button></td>
                 <td>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" value="${item.비고 || ''}" onchange="updateInfo('${item.사번}', '비고', this.value)" style="width:60%;">
-                        <button onclick="unlockAndEdit('${item.사번}')" style="width:35%; background-color:#ffc107;">수정</button>
+                    <div class="remarks-container">
+                        <input type="text" id="remarks-${item.사번}" value="${item.비고||''}">
+                        <button onclick="saveRemarks('${item.사번}')">저장</button>
                     </div>
                 </td>
-            </tr>
-        `;
+                <td><button class="btn-edit" onclick="unlockAndEdit('${item.사번}')">출결 수정</button></td>
+            </tr>`;
         listBody.innerHTML += row;
     });
 }
