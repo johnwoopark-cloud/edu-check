@@ -47,3 +47,4 @@ function renderTable() {
         listBody.innerHTML += row;
     });
 }
+renderTable();
