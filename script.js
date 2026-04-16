@@ -4,7 +4,7 @@ if (typeof initialData === 'undefined') {
 } else {
     alert("성공! 데이터 " + initialData.length + "건을 읽어왔습니다.");
 }
-
+let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
 function renderTable() {
     const listBody = document.getElementById('trainee-list');
     if (!listBody) return;
