@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사내 교육 출석 시스템</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>사내 교육 출석부</title>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js](https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js)"></script>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f8f9fa; }
+        .header { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .btn { padding: 6px 12px; cursor: pointer; border: none; border-radius: 4px; color: white; }
+        .btn-start { background-color: #28a745; } /* 개시: 초록 */
+        .btn-end { background-color: #dc3545; }   /* 종료: 빨강 */
+        .btn-export { background-color: #6c757d; padding: 10px 20px; font-weight: bold; }
+        input[type="text"] { width: 300px; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
 </head>
 <body>
-    <header>
+    <div class="header">
         <h1>현장 출석 관리 대시보드</h1>
-        <div id="stats">
-            출석률: <span id="attendance-rate">0%</span> | 
-            간식 현황: 아아(<span id="ice-ame">0</span>), 라떼(<span id="latte">0</span>)
-        </div>
-        <button onclick="exportToExcel()" class="btn-export">최종 결과 엑셀 다운로드</button>
-    </header>
+        <p>출석률: <span id="attendance-rate">0%</span> | 간식 현황: 아아(<span id="ice-ame">0</span>), 라떼(<span id="latte">0</span>)</p>
+        <button onclick="exportToExcel()" class="btn btn-export">최종 결과 엑셀 다운로드</button>
+    </div>
 
-    <main>
-        <input type="text" id="search-input" placeholder="이름 또는 사번 검색..." onkeyup="filterTable()">
-        <table id="attendance-table">
-            <thead>
-                <tr>
-                    <th>이름(사번)</th>
-                    <th>오전개시</th>
-                    <th>오전종료</th>
-                    <th>오후개시</th>
-                    <th>오후종료</th>
-                    <th>간식</th>
-                    <th>비고/조퇴사유</th>
-                </tr>
-            </thead>
-            <tbody id="trainee-list">
-                </tbody>
-        </table>
-    </main>
+    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="이름 또는 사번 검색...">
 
-    <script src="data.js"></script>  <script src="script.js"></script> ```
+    <table>
+        <thead>
+            <tr>
+                <th>부서/이름(사번)</th>
+                <th>오전개시</th>
+                <th>오전종료</th>
+                <th>오후개시</th>
+                <th>오후종료</th>
+                <th>간식/비고</th>
+            </tr>
+        </thead>
+        <tbody id="traineeList">
+            </tbody>
+    </table>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
