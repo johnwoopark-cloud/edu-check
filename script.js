@@ -1,4 +1,9 @@
-// ... (상단 데이터 및 함수들은 동일)
+// script.js 맨 윗줄에 넣으세요
+if (typeof initialData === 'undefined') {
+    alert("위험! data.js를 찾지 못했습니다. 파일 이름이나 연결 순서를 확인하세요.");
+} else {
+    alert("성공! 데이터 " + initialData.length + "건을 읽어왔습니다.");
+}
 
 function renderTable() {
     const listBody = document.getElementById('trainee-list');
