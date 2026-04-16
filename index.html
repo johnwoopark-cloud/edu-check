@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사내 교육 출석 시스템</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>현장 출석 관리 대시보드</h1>
+        <div id="stats">
+            출석률: <span id="attendance-rate">0%</span> | 
+            간식 현황: 아아(<span id="ice-ame">0</span>), 라떼(<span id="latte">0</span>)
+        </div>
+        <button onclick="exportToExcel()" class="btn-export">최종 결과 엑셀 다운로드</button>
+    </header>
+
+    <main>
+        <input type="text" id="search-input" placeholder="이름 또는 사번 검색..." onkeyup="filterTable()">
+        <table id="attendance-table">
+            <thead>
+                <tr>
+                    <th>이름(사번)</th>
+                    <th>오전개시</th>
+                    <th>오전종료</th>
+                    <th>오후개시</th>
+                    <th>오후종료</th>
+                    <th>간식</th>
+                    <th>비고/조퇴사유</th>
+                </tr>
+            </thead>
+            <tbody id="trainee-list">
+                </tbody>
+        </table>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
