@@ -1,0 +1,51 @@
+/* 1. 기본 설정 */
+body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+h1 { color: #333; text-align: center; }
+
+/* 2. 테이블 레이아웃 */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: #fff; 
+    table-layout: fixed; /* 너비 고정 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+th, td { 
+    border: 1px solid #dee2e6; 
+    padding: 10px 4px; 
+    text-align: center; 
+    font-size: 13px; 
+    overflow: hidden; 
+}
+
+th { background-color: #007bff; color: white; font-weight: bold; }
+
+/* 3. 칼럼별 너비 (%) */
+th:nth-child(1) { width: 11%; } /* 이름 */
+th:nth-child(2) { width: 13%; } /* 과정명 */
+th:nth-child(3) { width: 9%; }  /* 날짜 */
+th:nth-child(4) { width: 5%; }  /* 시간 */
+th:nth-child(5), th:nth-child(6), th:nth-child(7), th:nth-child(8) { width: 8%; } /* 확인버튼들 */
+th:nth-child(9) { width: 18%; } /* 비고 */
+th:nth-child(10) { width: 12%; } /* 수정 */
+
+/* 4. 버튼 및 입력창 스타일 */
+button { 
+    width: 100%; padding: 8px 0; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff;
+}
+
+/* 출결 완료(비활성화) 상태 */
+button.done { background-color: #e9ecef !important; color: #adb5bd !important; cursor: not-allowed; }
+
+/* 비고 입력 영역 */
+.remarks-container { display: flex; gap: 4px; }
+.remarks-container input { width: 70%; padding: 5px; border: 1px solid #ced4da; border-radius: 3px; font-size: 11px; }
+.remarks-container button { width: 28%; font-size: 11px; background: #6c757d; color: white; border: none; }
+
+/* 출결 수정 버튼 (노란색) */
+.btn-edit { background-color: #ffc107; border: 1px solid #e0a800; font-weight: bold; }
+.btn-edit:hover { background-color: #e0a800; }
+
+/* 엑셀 다운로드 버튼 (상단 위치용) */
+.btn-export { width: auto; padding: 10px 20px; background: #28a745; color: white; font-weight: bold; margin-bottom: 15px; float: right; }
