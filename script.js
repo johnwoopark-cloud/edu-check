@@ -6,25 +6,48 @@ function renderTable() {
     const listBody = document.getElementById('trainee-list');
     listBody.innerHTML = ''; 
 
+    // LocalStorage 데이터 확인
     const currentData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
 
     currentData.forEach(item => {
         const row = `
             <tr>
-                <td style="font-size: 0.9em;">${item.부서}<br><b>${item.이름}</b>(${item.사번})</td>
-                <td style="font-size: 0.8em;">${item.과정명}</td>
-                <td style="font-size: 0.8em;">${item.날짜}</td>
+                <td>${item.부서}<br><b>${item.이름}</b>(${item.사번})</td>
+                <td>${item.과정명}</td>
+                <td>${item.날짜}</td>
                 <td>${item.교육시간}h</td>
-                <td><button onclick="recordTime('${item.사번}', '오전개시')">${item.오전개시 || '출석'}</button></td>
-                <td><button onclick="recordTime('${item.사번}', '오전종료')">${item.오전종료 || '종료'}</button></td>
-                <td><button onclick="recordTime('${item.사번}', '오후개시')">${item.오후개시 || '출석'}</button></td>
-                <td><button onclick="recordTime('${item.사번}', '오후종료')">${item.오후종료 || '종료'}</button></td>
-                <td><input type="text" class="input-cell" value="${item.간식 || ''}" onchange="updateInfo('${item.사번}', '간식', this.value)"></td>
-                <td><input type="text" class="input-cell" value="${item.비고 || ''}" onchange="updateInfo('${item.사번}', '비고', this.value)"></td>
+                <td><button onclick="recordTime('${item.사번}', '오전개시')">${item.오전개시 || '확인'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오전종료')">${item.오전종료 || '확인'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오후개시')">${item.오후개시 || '확인'}</button></td>
+                <td><button onclick="recordTime('${item.사번}', '오후종료')">${item.오후종료 || '확인'}</button></td>
+                <td>
+                    <select onchange="updateInfo('${item.사번}', '간식', this.value)" class="input-cell">
+                        <option value="">선택</option>
+                        <option value="음료" ${item.간식 === '음료' ? 'selected' : ''}>음료</option>
+                        <option value="과자" ${item.간식 === '과자' ? 'selected' : ''}>과자</option>
+                        <option value="간식" ${item.간식 === '간식' ? 'selected' : ''}>간식</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="input-cell" value="${item.비고 || ''}" 
+                           onchange="updateInfo('${item.사번}', '비고', this.value)" placeholder="내용 입력">
+                </td>
             </tr>
         `;
         listBody.innerHTML += row;
     });
+}
+
+// 정보 업데이트 함수 (간식/비고 저장용)
+function updateInfo(id, field, value) {
+    let currentData = JSON.parse(localStorage.getItem('attendanceData')) || initialData;
+    currentData = currentData.map(item => {
+        if (item.사번 === id) {
+            item[field] = value;
+        }
+        return item;
+    });
+    localStorage.setItem('attendanceData', JSON.stringify(currentData));
 }
 // 3. 시간 기록 함수
 function recordTime(id, type) {
