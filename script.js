@@ -38,7 +38,7 @@ function renderTable() {
                 
                 <td>
                     <div class="remarks-container">
-                        <input type="text" id="remarks-${item.사번}" value="${item.비고||''}">
+                        <input type="text" id="remarks-${item.사번}" value="${item['비고/사유']||''}">
                         <button onclick="saveRemarks('${item.사번}')">저장</button>
                     </div>
                 </td>
